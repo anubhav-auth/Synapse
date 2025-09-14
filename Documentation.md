@@ -1,157 +1,186 @@
-Of course. You're ready to tackle a project that truly pushes the boundaries of what a portfolio piece can be. Let's design a general-purpose system that combines fine-tuning with a sophisticated, multi-agent architecture.
+Of course. Let's elevate the project with a new name and provide a much more detailed, in-depth documentation. This "Director's Cut" blueprint is designed to be a comprehensive guide that you can directly build from, covering not just the "what" but the "why" behind each architectural decision.
 
-Here is the complete documentation for **"Synapse," an Autonomous Research Agent**. This project is designed to be a language-agnostic, powerful tool that showcases the full spectrum of advanced GenAI engineering skills.
+### **Project Documentation: Framework Artisan**
 
-* * * * *
+*A Fine-Tuned, RAG-Augmented Code Generation System for Specialized Frameworks*
 
-### **Project Documentation: "Synapse" - The Autonomous Research Agent**
+-----
 
-#### **1\. Project Vision & Goal**
+#### **1. Executive Summary & Vision**
 
--   **Problem Statement**: High-quality research is a time-consuming, multi-step process involving query planning, web browsing, document analysis, and synthesis. Standard RAG systems can fetch facts from a predefined knowledge base, but they cannot autonomously explore new topics, validate information across multiple sources, or create novel, structured reports from scratch.
+  * **Project Name**: Framework Artisan
 
--   **Project Goal**: To engineer an autonomous, multi-agent AI system named "Synapse" that can conduct comprehensive research on any user-provided topic. Synapse will dynamically create a research plan, execute it by browsing the web and analyzing user-provided documents, and synthesize the findings into a well-structured, cited report. The core of this system will be a **fine-tuned LLM specialized in the skill of synthesis and summarization**, making it a powerful, general-purpose research tool.
+  * **Vision**: To create a state-of-the-art AI developer assistant that possesses a deep, nuanced understanding of a specialized or proprietary codebase. Framework Artisan will move beyond the capabilities of general-purpose code assistants by leveraging a fine-tuned language model that has been explicitly trained on the target framework's unique syntax, idioms, and architectural patterns.
 
--   **Success Metric**: The final application will accept a complex research topic, produce a detailed report with verifiable citations, and its core synthesis module (the fine-tuned model) will quantitatively outperform its base model on a custom evaluation benchmark for summarization quality.
+  * **Problem Statement**: Developer productivity is increasingly tied to the quality of AI assistance. However, teams working with internal, legacy, or niche open-source frameworks operate at a significant disadvantage. General-purpose LLMs lack the specialized knowledge to provide accurate, efficient, or even syntactically correct code for these domains, forcing developers back to manual documentation searches and trial-and-error.
 
-#### **2\. System Architecture: A Planner-Executor Multi-Agent System**
+  * **Solution**: Framework Artisan solves this problem by creating a hybrid AI system. It combines a **fine-tuned Gemini 1.5 Flash model** (the "Artisan") for expert-level code generation with a **RAG pipeline** (the "Librarian") for high-fidelity, real-time access to API documentation. This dual-component architecture ensures that the assistant is not only fluent in the framework's style but also factually grounded in its specific implementation details.
 
-The architecture is modeled after a human research workflow, with a "Planner" agent directing a team of "Executor" agents.
+  * **Target User Persona**: A mid-level software developer joining a team that uses a fictional Python data mapping framework called **"DataWeave."** They need to quickly become productive without having an expert senior developer constantly available to answer questions.
 
-**Architectural Flow Diagram:**
+-----
 
-```
-+--------------+     +-----------------+     +-----------------+
-|  User Topic  |---->| FastAPI Backend |---->|  Planner Agent  |
-| (e.g., "...")|     +-----------------+     |  (LangChain)    |
-+--------------+                             +--------+--------+
-      ^                                                | (Creates Research Plan)
-      |                                                v
-      |                                    +-----------+-----------+
-      |                                    |   Task Queue (e.g.,   |
-      |                                    |  ["Search for X",     |
-      |                                    |   "Analyze PDF Y"]    |
-      |                                    +-----------+-----------+
-      |                                                |
-      | (Final Report)                     +-----------+-----------+
-      |                                    |                       |
-      v                                    v                       v
-+--------------+     +-------------------+   +---------------------+   +--------------------------+
-|  Synthesizer |<----|  Aggregated Data  |<--| Web Research Agent  |   | Document Analysis Agent  |
-| Agent (Fine- |     |  (Structured JSON)|   | (Executes Search    |   | (Executes PDF/TXT        |
-| Tuned Model) |     +-------------------+   | & Scrape Tasks)     |   | Analysis Tasks)          |
-+--------------+                             +---------------------+   +--------------------------+
+#### **2. System Architecture & Data Flow**
 
-```
+The core of Framework Artisan is an "intent-based routing" system that directs the user's query to the most appropriate AI component.
 
-#### **3\. Technology Stack**
+**Detailed Data Flow:**
+
+1.  **Query Input**: The user submits a natural language query via the Streamlit frontend (e.g., `"Generate a DataWeave class to map a 'customer' source dictionary to a 'client' target object. The source has 'first_name' and 'last_name', which should be combined into a 'full_name' field in the target."`).
+2.  **API Gateway (FastAPI)**: The query is received by the FastAPI backend, which encapsulates the entire AI logic.
+3.  **Intent Classification Router (LangChain)**: The query is first passed to a **Router Agent**. This agent uses the base Gemini 2.5 Pro model with a specific prompt to classify the user's intent into one of three categories:
+      * `code_generation`: The user wants to write, refactor, or complete code.
+      * `documentation_lookup`: The user is asking a specific factual question about a class or method.
+      * `conceptual_question`: The user is asking a general "how-to" or "best practice" question.
+4.  **Task Execution**:
+      * If `documentation_lookup`, the router invokes the **RAG Pipeline**. The query is embedded, and a search is performed against the FAISS vector store of the DataWeave documentation. The raw, relevant text chunks are returned.
+      * If `code_generation`, the router invokes the **Fine-Tuned "Artisan" Model**. The original prompt is sent directly to the fine-tuned Gemini 1.5 Flash model, which generates the idiomatic DataWeave code.
+      * If `conceptual_question`, the router executes a **hybrid workflow**: It first calls the **RAG Pipeline** to retrieve relevant documentation context. This context is then prepended to the user's original query and sent to the **Fine-Tuned "Artisan" Model**. This gives the expert model the necessary factual grounding to answer the conceptual question accurately.
+5.  **Response Synthesis & Return**: The final output (whether a code block, a documentation snippet, or a detailed explanation) is packaged into a JSON object and returned to the frontend for display.
+
+-----
+
+#### **3. Technology Stack & Tooling**
 
 | Component | Technology | Rationale & Key Features |
-| --- | --- | --- |
-| **Model Fine-Tuning** | Google AI Studio / Vertex AI | Provides an accessible platform to fine-tune Gemini models for the specialized task of high-quality synthesis. |
-| **Base Model** | Gemini 1.5 Flash | Excellent for its balance of performance, speed, and cost, making it ideal for the synthesis fine-tuning task. |
-| **Core LLM** | Gemini 2.5 Pro | The primary reasoning engine for the Planner and Executor agents due to its superior instruction-following and planning capabilities. |
-| **Agent Framework** | LangGraph (part of LangChain) | The perfect choice for creating cyclical, stateful multi-agent systems like the Planner-Executor model. It provides more control than standard Agent Executors. |
-| **Data Indexing** | LlamaIndex & FAISS | LlamaIndex for robust document ingestion; FAISS for high-speed vector storage and retrieval for the Document Analysis Agent. |
-| **Web Search Tool** | `google-search-results` (SerpAPI) | A reliable tool for providing the Web Research Agent with real-time access to Google search results. |
-| **Frontend** | Streamlit or Gradio | For building a polished, interactive web UI where users can submit topics, upload files, and view the final research report. |
-| **API Backend** | FastAPI | For creating a scalable, asynchronous, and robust backend to serve the agent's capabilities. |
-| **Containerization** | Docker & Docker Compose | To ensure a reproducible environment and simplify the deployment of the entire multi-service application. |
-| **Evaluation** | RAGAS & Custom Scripts | RAGAS for evaluating the document analysis agent's retrieval quality, and custom scripts for evaluating the summarization/synthesis quality of the fine-tuned model. |
+| :--- | :--- | :--- |
+| **Model Fine-Tuning**| Google AI Studio / Vertex AI API| Provides a robust and accessible platform for training. The API allows for the automation of training jobs as part of a larger MLOps pipeline. |
+| **Base Model**| Gemini 1.5 Flash | Chosen for its excellent balance of performance, large context window (useful for RAG-augmented prompts), and cost-efficiency for fine-tuning. |
+| **Orchestration** | LangChain (`langchain`, `langchain-google-genai`)| The backbone of the system, used to create the router logic (`RunnableBranch`), define tools, and interface with both the Gemini API and the fine-tuned model. |
+| **Data Framework** | LlamaIndex | Leveraged for its high-performance data ingestion pipelines, specifically for parsing the markdown documentation and creating a structured, indexable format. |
+| **Vector Store** | FAISS (`faiss-cpu`) | A highly optimized library for vector search, ensuring that the `documentation_lookup` step is extremely fast. |
+| **API Backend** | FastAPI, Uvicorn | The modern standard for building asynchronous, high-performance Python APIs. |
+| **Frontend** | Streamlit | Perfect for creating a rich, interactive web application for this tool with minimal effort, allowing for features like syntax highlighting and markdown rendering. |
+| **Containerization**| Docker & Docker Compose | For creating a reproducible, multi-container application environment, which is a standard practice in modern software engineering. |
+| **Code Quality** | `pytest`, `black`, `ruff` | For ensuring the project's own codebase is high-quality, testable, and maintainable. |
+| **Evaluation** | `pytest`, `codebleu` | `pytest` will be used for functional validation of the generated code. The `codebleu` library will be used for syntactic and structural evaluation. |
 
-* * * * *
+-----
 
-#### **4\. Detailed Implementation Plan**
+#### **4. Detailed Implementation Plan**
 
-##### **Phase 1: Dataset Creation & Fine-Tuning (Est. 10 hours)**
+##### **Phase 1: The "DataWeave" Framework & Dataset Creation (Est. 12 hours)**
 
-1.  **Generate the Synthesis Fine-Tuning Dataset (`data/synthesis_dataset.jsonl`)**:
+This is the most labor-intensive but valuable phase.
 
-    -   **Goal**: Create a dataset to teach a model how to synthesize messy, multi-source text into a clean, structured summary.
+1.  **Define "DataWeave"**:
 
-    -   **Format**: Use the instruction-following JSONL format: `{"text": "<s>[INST] {prompt} [/INST] {output} </s>"}`.
+      * Create a file `data/dataweave_framework.py`.
+      * **Example API**:
+        ```python
+        # data/dataweave_framework.py
 
-    -   **Process**:
+        class SourceField:
+            def __init__(self, name: str):
+                self.name = name
 
-        1.  **Gather Raw Data**: Programmatically collect sets of 3-5 related but distinct text snippets on various topics (e.g., search results for "CRISPR gene editing," sections from a Wikipedia article, etc.).
+        class TargetField:
+            def __init__(self, name: str, transform_func=None):
+                self.name = name
+                self.transform_func = transform_func
 
-        2.  **Create Prompts**: The prompt for each example will be a structured input like:
+        class DataWeaveMapper:
+            def __init__(self, source_cls_name: str, target_cls_name: str):
+                self.source_name = source_cls_name
+                self.target_name = target_cls_name
+                self.mappings = []
 
-            JSON
+            def add_mapping(self, source_field: SourceField, target_field: TargetField):
+                self.mappings.append((source_field, target_field))
 
-            ```
-            "Summarize the following documents into a coherent, well-structured report with an introduction, key findings, and a conclusion. Cite each piece of information with its corresponding source number.\n\n[Source 1]: '...raw text...'\n[Source 2]: '...raw text...'\n[Source 3]: '...raw text...'"
+            def transform(self, source_dict: dict) -> dict:
+                # ... transformation logic ...
+                pass
+        ```
 
-            ```
+2.  **Write the Documentation (`data/dataweave_docs.md`)**:
 
-        3.  **Generate High-Quality Outputs**: Manually write the first 50-100 "golden" outputs. The output should be a perfectly formatted markdown report. Then, use Gemini 2.5 Pro to help you scale this process and generate hundreds more examples.
+      * Create a detailed markdown file explaining each class, its methods, and providing clear examples. This will be the knowledge source for your RAG pipeline.
 
-2.  **Fine-Tune Gemini 1.5 Flash**:
+3.  **Generate the Fine-Tuning Dataset (`data/finetuning_dataset.jsonl`)**:
 
-    -   Use Google AI Studio to upload your dataset and train the model.
+      * **Goal**: Create at least 500 high-quality examples.
+      * **Example JSONL Entry**:
+        ````json
+        {"text": "<s>[INST] How do I map a source 'user' dictionary with 'fname' and 'lname' to a target 'person' object with a 'full_name' field? [/INST] To map a source 'user' dictionary to a target 'person' object and combine 'fname' and 'lname' into 'full_name', you can define a transformation function and use the `DataWeaveMapper`. Here is the idiomatic way to do it:\n\n```python\nfrom dataweave_framework import DataWeaveMapper, SourceField, TargetField\n\ndef combine_names(source_dict):\n    return f\"{source_dict.get('fname', '')} {source_dict.get('lname', '')}\".strip()\n\nuser_to_person_mapper = DataWeaveMapper('User', 'Person')\nuser_to_person_mapper.add_mapping(\n    source_field=SourceField(name='fname'), \n    target_field=TargetField(name='full_name', transform_func=combine_names)\n)\n\n# Note: This mapping is incomplete as it only uses 'fname' as a trigger.\n# A more robust implementation might require passing multiple source fields.\n```</s>"}
+        ````
+      * **Workflow**:
+        1.  Manually write the first 50 examples to ensure quality.
+        2.  Write a Python script that uses the Gemini 2.5 Pro API to generate more examples. Prompt it with a few of your handwritten examples and ask it to create more diverse and complex scenarios.
 
-    -   Thoroughly test the fine-tuned model in the playground to confirm it has learned the skill of synthesis and citation. Note its API endpoint.
+##### **Phase 2: Fine-Tuning and RAG Indexing (Est. 5 hours)**
 
-##### **Phase 2: Building the Multi-Agent System (Est. 9 hours)**
+1.  **Fine-Tune Gemini 1.5 Flash**:
 
-1.  **Tool Definition (`tools/research_tools.py`)**:
+      * Use the Google AI Python SDK (`google-generativeai`) to programmatically create and run the fine-tuning job. This is a more advanced approach than the UI.
+      * Monitor the job's progress and review the validation metrics (like loss) once it's complete.
+      * Save the name of your tuned model (e.g., `tunedModels/framework-artisan-v1`).
 
-    -   **Web Search Tool**: Create a tool using the `google-search-results` library that takes a search query and returns a list of snippets and URLs.
+2.  **Build the RAG Index (`ingestion.py`)**:
 
-    -   **Web Scraper Tool**: Create a tool that takes a URL and returns the clean text content of the page (use a library like `BeautifulSoup`).
+      * Write a script that uses LlamaIndex to:
+          * Load `data/dataweave_docs.md` using `MarkdownReader`.
+          * Chunk the text using `SentenceSplitter`.
+          * Initialize `HuggingFaceEmbedding` with `BAAI/bge-large-en-v1.5`.
+          * Create and build a `FaissVectorStore`.
+          * Persist the index to disk.
 
-    -   **Document Indexing & Query Tool**: This tool will be used by the Document Analysis Agent. It will need two functions: one to take an uploaded file, process it with LlamaIndex, and add it to a FAISS index, and another to query that index.
+##### **Phase 3: Backend, Frontend, and Containerization (Est. 8 hours)**
 
-2.  **Agent Creation with LangGraph**:
+1.  **FastAPI Backend (`api/main.py`)**:
 
-    -   **Define Agent Nodes**: In LangGraph, each agent is a "node." You'll define nodes for the `Planner`, `Web_Researcher`, `Doc_Analyzer`, and `Synthesizer`.
+      * Set up your project structure.
+      * Implement the LangChain router. You can use a `RunnableLambda` to call the Gemini 2.5 Pro model for the classification step.
+      * Load your fine-tuned model using `ChatGoogleGenerativeAI(model="tunedModels/your-model-name")`.
+      * Load the FAISS index from disk.
+      * Define your `/assist` endpoint with Pydantic request/response models.
 
-    -   **Planner Agent**: This agent receives the user's topic and creates a JSON object representing a step-by-step research plan. Example plan: `{"steps": [{"agent": "Web_Researcher", "task": "Find the latest news on nuclear fusion breakthroughs"}, {"agent": "Doc_Analyzer", "task": "Summarize the key findings of the uploaded 'ITER_report.pdf'"}, ...]}`
+2.  **Streamlit Frontend (`frontend/app.py`)**:
 
-    -   **Executor Agents**: The `Web_Researcher` and `Doc_Analyzer` agents will receive tasks from the Planner and use their tools to execute them. They will return structured data (e.g., JSON with "content" and "source" keys).
+      * Create a simple UI with a text area for the query and a "Generate" button.
+      * Use `requests` to call your backend API.
+      * Use `st.spinner` to show a loading state.
+      * Display the response, using `st.code(language='python')` for code blocks.
 
-    -   **Define Edges**: Use LangGraph's conditional "edges" to route the flow of control. After the Planner creates the plan, the graph will loop through the tasks, calling the appropriate agent for each step. Once all research tasks are complete, the final edge will route the aggregated data to the `Synthesizer` node.
+3.  **Dockerize**:
 
-    -   **Synthesizer Agent**: This final node will call your **fine-tuned Gemini model** to perform the synthesis task and generate the final report.
+      * Create a `backend.Dockerfile` and a `frontend.Dockerfile`.
+      * Write a `docker-compose.yml` file to build and run both services. Ensure the backend container includes the persisted FAISS index and the `data` directory.
 
-##### **Phase 3: Backend, Frontend, and Deployment (Est. 8 hours)**
+##### **Phase 4: Evaluation and Documentation (Est. 4 hours)**
 
-1.  **FastAPI Backend**:
+1.  **Functional Testing (`evaluation/test_code_gen.py`)**:
 
-    -   Implement an endpoint `/research` that accepts a topic and optionally a list of uploaded files.
+      * Write a script that defines a list of prompts and corresponding `pytest` tests.
+      * The script will call your API for each prompt, save the output, and run the associated test against it.
+      * **Example `pytest` test**:
+        ```python
+        # evaluation/test_generated_code.py
+        # This file is dynamically overwritten by the evaluation script
+        from data.dataweave_framework import DataWeaveMapper, SourceField, TargetField
 
-    -   This endpoint will trigger your LangGraph agent system.
+        # ... [Code generated by the LLM for a specific prompt] ...
 
-    -   Because research can be slow, implement this using FastAPI's `BackgroundTasks` or a more robust task queue like Celery, allowing you to immediately return a "job ID" to the user, who can then poll another endpoint for the final result.
-
-2.  **Streamlit Frontend**:
-
-    -   Design a UI that allows a user to enter a research topic and upload one or more documents.
-
-    -   When the "Start Research" button is clicked, it will call the `/research` endpoint.
-
-    -   The UI should then display the agent's progress in real-time by polling a status endpoint on the backend, showing which task is currently being executed.
-
-    -   Once complete, it will display the final, beautifully formatted markdown report.
-
-3.  **Dockerization**:
-
-    -   Create a `docker-compose.yml` file to manage the `backend` and `frontend` services, ensuring they can communicate and that all necessary environment variables and data volumes (for FAISS indexes) are correctly configured.
-
-##### **Phase 4: Evaluation and Documentation (Est. 3 hours)**
-
-1.  **Summarization Quality Evaluation (`evaluation/evaluate_synthesis.py`)**:
-
-    -   Create a hold-out test set of 20-30 multi-source documents.
-
-    -   Generate a summary for each set using both the **base Gemini 1.5 Flash model** and your **fine-tuned model**.
-
-    -   Use another powerful LLM (like Gemini 2.5 Pro) as an evaluator. Prompt it to rate both summaries on a scale of 1-10 for coherence, accuracy, and proper citation.
-
-    -   Report the average score improvement of your fine-tuned model.
+        def test_user_mapping():
+            mapper = user_to_person_mapper # Assumes this is generated
+            source = {"fname": "John", "lname": "Doe"}
+            target = mapper.transform(source)
+            assert target["full_name"] == "John Doe"
+        ```
 
 2.  **Finalize `README.md`**:
 
-    -   Document the entire project, including the architecture diagram, setup instructions using Docker Compose, and a detailed "Evaluation" section that presents your quantitative results, proving the value of your fine-tuning.
+      * Write a professional README that includes the project vision, architecture diagram, tech stack, setup instructions (Docker Compose), and a section detailing the impressive evaluation results.
 
-This project is ambitious, but it directly maps to the skills of a top-tier GenAI engineer. By completing it, you will have a powerful story to tell about building complex, reliable, and specialized AI systems from the ground up.
+-----
+
+#### **5. Risks and Mitigations**
+
+  * **Risk**: Low-quality synthetic data leads to a poorly performing fine-tuned model.
+      * **Mitigation**: Spend the majority of your time in Phase 1. Manually review a large sample of the synthetically generated data to ensure it meets your quality standards before starting the fine-tuning job.
+  * **Risk**: The "Intelligent Router" misclassifies user intent.
+      * **Mitigation**: Use few-shot prompting for the router agent, providing it with 5-10 examples of different queries and their correct classification (`code_generation`, `documentation_lookup`, etc.).
+  * **Risk**: The fine-tuned model hallucinates or generates non-functional code.
+      * **Mitigation**: This is why the evaluation phase is crucial. The `pytest` suite provides a safety net to catch functional errors. The hybrid RAG approach also helps by grounding the model in factual documentation for conceptual questions.
+
+This in-depth documentation provides a complete and professional roadmap. By following these steps, you will create a project that not only demonstrates your technical skills but also your ability to think critically about AI system design, data quality, and evaluation.
